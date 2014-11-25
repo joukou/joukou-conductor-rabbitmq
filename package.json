@@ -1,6 +1,6 @@
 {
   "name": "joukou-conductor-rabbitmq",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "RabbitMQ implementation for joukou-conductor",
   "main": "dist/index.js",
   "scripts": {
