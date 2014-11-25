@@ -24,6 +24,9 @@ class RabbitMQClient
     client = this
     this.on.connection.then( ->
       client._onConnection.apply(client, arguments)
+    ).fail( (err) ->
+      this._channelDeferred.reject(err)
+      return
     )
   _onConnection: (connection) ->
     this.connection = connection
@@ -33,10 +36,14 @@ class RabbitMQClient
     ok = this.connection.createChannel()
     ok.then( ->
       client._onChannel.apply(client, arguments)
+      return
+    ).fail( (err) ->
+      this._channelDeferred.reject(err)
+      return
     )
   _onChannel: (channel) ->
     this.channel = channel
-    this._channelDeferred.resolve(this)
+    this._channelDeferred.resolve(@)
   cancel: (consumerTag) ->
     # Not connected
     if not this.channel
@@ -60,8 +67,12 @@ class RabbitMQClient
         # Check again
         if message is null or message is undefined
           return
-        callback(message)
+        callback(null, message)
       , consumerTag: consumerTag)
+    )
+    .fail( (err) ->
+      callback(err, null)
+      return
     )
     consumerTag
   send: (message) ->

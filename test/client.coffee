@@ -119,6 +119,11 @@ describe 'rabbitmq client', ->
     client.on.channel =
       then: (callback) ->
         callback()
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.consume(callback)
 
@@ -135,13 +140,18 @@ describe 'rabbitmq client', ->
 
     callbackCalled = no
     message = null
-    callback = (msg) ->
+    callback = (err, msg) ->
       callbackCalled = yes
       message = msg
 
     client.on.channel =
       then: (callback) ->
         callback(client.channel)
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.consume(callback)
 
@@ -164,6 +174,11 @@ describe 'rabbitmq client', ->
     client.on.channel =
       then: (callback) ->
         callback()
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.consume(callback, yes)
 
@@ -181,13 +196,18 @@ describe 'rabbitmq client', ->
 
     callbackCalled = no
     message = null
-    callback = (msg) ->
+    callback = (err, msg) ->
       callbackCalled = yes
       message = msg
 
     client.on.channel =
       then: (callback) ->
         callback(client.channel)
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.consume(callback, yes, "TAG")
 
@@ -209,6 +229,11 @@ describe 'rabbitmq client', ->
     client.on.channel =
       then: (callback) ->
         callback()
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.send(messageToSend)
 
@@ -230,6 +255,11 @@ describe 'rabbitmq client', ->
     client.on.channel =
       then: (callback) ->
         callback()
+        return {
+          then: ->
+          fail: ->
+        }
+      fail: () ->
 
     client.send(messageToSend)
 
