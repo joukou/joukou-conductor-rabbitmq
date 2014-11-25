@@ -33,8 +33,10 @@ class ConductorRabbitMQClient extends RabbitMQClient
   constructor: ->
     super(JoukouConductorExchange, JoukouConductorRoutingKey)
     client = this
-    this.consume( ->
-      client.onMessage.apply(client, arguments)
+    this.consume( (err, message) ->
+      if err
+        throw err
+      client.onMessage.apply(client, [message])
     , yes)
     this.fleetClient = fleet.getClient(
       JoukouFleetAPIHost,
@@ -42,6 +44,7 @@ class ConductorRabbitMQClient extends RabbitMQClient
       yes
     )
   onMessage: (message) ->
+    # this should stop the process
     # Here we must process what the peeps
     # want their graphs to do
     # Here is an example of messages from Isaac:
