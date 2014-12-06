@@ -50,6 +50,7 @@ class RabbitMQClient
       return Q.reject(new Error("Not connected"))
     this.channel.cancel(consumerTag)
   consume: (callback, contentOnly, consumerTag) ->
+    #Un promise-able, callback is called multiple times
     if callback not instanceof Function
       throw new TypeError("Callback is expected to be a Function")
     if not consumerTag
@@ -69,6 +70,9 @@ class RabbitMQClient
           return
         callback(null, message)
       , consumerTag: consumerTag)
+      .fail((err) ->
+        callback(err, null)
+      )
     )
     .fail( (err) ->
       callback(err, null)
@@ -76,13 +80,25 @@ class RabbitMQClient
     )
     consumerTag
   send: (message) ->
+    if typeof message isnt 'string'
+      message = JSON.stringify(message)
     if message not instanceof Buffer
       message = new Buffer(message)
     client = this
+    deferred = Q.defer()
     this.on.channel.then( ->
       client.channel.assertQueue(client.key)
-      client.channel.sendToQueue(client.key, message)
+      # sendToQueue should return a response from Buffer.write
+      # http://nodejs.org/api/buffer.html#buffer_buf_write_string_offset_length_encoding
+      deferred.resolve(
+        client.channel.sendToQueue(client.key, message)
+      )
+      null
     )
+    .fail(
+      deferred.reject
+    )
+    return deferred.promise
 module.exports =
   getClient: (exchange, key) ->
     return new RabbitMQClient(exchange, key)
