@@ -25,7 +25,7 @@ if not JoukouFleetAPIHost
   process.env["JOUKOU_FLEET_API_HOST"] = JoukouFleetAPIHost
 
 if not JoukouFleetAPIPath
-  JoukouFleetAPIPath = "/v1-alpha/"
+  JoukouFleetAPIPath = "/v1/"
   process.env["JOUKOU_FLEET_API_PATH"] = JoukouFleetAPIPath
 
 class ConductorRabbitMQClient extends RabbitMQClient
