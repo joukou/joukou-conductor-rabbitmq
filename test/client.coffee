@@ -7,6 +7,15 @@ assert            = chai.assert
 clientModule      = require( '../dist' ).RabbitMQClient
 Q                 = require( 'q' )
 
+fakePromise = {
+  then: ( callback ) ->
+    callback( )
+    return fakePromise
+  fail: ->
+    return fakePromise
+  catch: ->
+    return fakePromise
+}
 
 class MockedClient
   constructor: ->
@@ -116,14 +125,7 @@ describe 'rabbitmq client', ->
     callback = ->
       callbackCalled = yes
 
-    client.on.channel =
-      then: (callback) ->
-        callback()
-        return {
-          then: ->
-          fail: ->
-        }
-      fail: () ->
+    client.on.channel = fakePromise
 
     client.consume(callback)
 
@@ -147,10 +149,7 @@ describe 'rabbitmq client', ->
     client.on.channel =
       then: (callback) ->
         callback(client.channel)
-        return {
-          then: ->
-          fail: ->
-        }
+        return fakePromise
       fail: () ->
 
     client.consume(callback)
@@ -171,14 +170,7 @@ describe 'rabbitmq client', ->
     callback = ->
       callbackCalled = yes
 
-    client.on.channel =
-      then: (callback) ->
-        callback()
-        return {
-          then: ->
-          fail: ->
-        }
-      fail: () ->
+    client.on.channel = fakePromise
 
     client.consume(callback, yes)
 
@@ -202,11 +194,8 @@ describe 'rabbitmq client', ->
 
     client.on.channel =
       then: (callback) ->
-        callback(client.channel)
-        return {
-          then: ->
-          fail: ->
-        }
+        callback( client.channel )
+        return fakePromise
       fail: () ->
 
     client.consume(callback, yes, "TAG")
@@ -226,14 +215,7 @@ describe 'rabbitmq client', ->
 
     client = new MockedClient()
 
-    client.on.channel =
-      then: (callback) ->
-        callback()
-        return {
-          then: ->
-          fail: ->
-        }
-      fail: () ->
+    client.on.channel = fakePromise
 
     client.send(messageToSend)
 
@@ -248,18 +230,12 @@ describe 'rabbitmq client', ->
     messageToSend = new Buffer('MESSAGE')
 
     MockedClient.prototype.channel.sendToQueue = (tag, message) ->
+      expect( message ).to.be.instanceof( Buffer )
       messageSent = message
 
     client = new MockedClient()
 
-    client.on.channel =
-      then: (callback) ->
-        callback()
-        return {
-          then: ->
-          fail: ->
-        }
-      fail: () ->
+    client.on.channel = fakePromise
 
     client.send(messageToSend)
 
