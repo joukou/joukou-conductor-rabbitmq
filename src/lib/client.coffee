@@ -21,24 +21,22 @@ class RabbitMQClient
       channel: this._channelDeferred.promise
     this._setupConnection()
   _setupConnection: ->
-    client = this
-    this.on.connection.then( ->
-      client._onConnection.apply(client, arguments)
-    ).fail( (err) ->
-      this._channelDeferred.reject(err)
+    this.on.connection.then( =>
+      @_onConnection.apply(@, arguments)
+    ).catch( (err) =>
+      @_channelDeferred.reject(err)
       return
     )
   _onConnection: (connection) ->
     this.connection = connection
     this._setupChannel()
   _setupChannel: ->
-    client = this
     ok = this.connection.createChannel()
-    ok.then( ->
-      client._onChannel.apply(client, arguments)
+    ok.then( =>
+      @_onChannel.apply(@, arguments)
       return
-    ).fail( (err) ->
-      this._channelDeferred.reject(err)
+    ).catch( (err) =>
+      @_channelDeferred.reject(err)
       return
     )
   _onChannel: (channel) ->
@@ -56,10 +54,9 @@ class RabbitMQClient
     if not consumerTag
       # Create one so they can cancel it
       consumerTag = uuid.v4()
-    client = this
-    this.on.channel.then(->
-      client.channel.assertQueue(client.key)
-      client.channel.consume(client.key, (message) ->
+    this.on.channel.then(=>
+      @channel.assertQueue(@key)
+      @channel.consume(@key, (message) ->
         # Filter the duds here
         if message is null or message is undefined
           return
@@ -69,9 +66,7 @@ class RabbitMQClient
         if message is null or message is undefined
           return
         callback(null, message)
-      , consumerTag: consumerTag)
-      .fail((err) ->
-        callback(err, null)
+      , consumerTag: consumerTag
       )
     )
     .fail( (err) ->
@@ -80,18 +75,17 @@ class RabbitMQClient
     )
     consumerTag
   send: (message) ->
-    if typeof message isnt 'string'
-      message = JSON.stringify(message)
-    if message not instanceof Buffer
+    if not Buffer.isBuffer( message )
+      if typeof message isnt 'string'
+        message = JSON.stringify(message)
       message = new Buffer(message)
-    client = this
     deferred = Q.defer()
-    this.on.channel.then( ->
-      client.channel.assertQueue(client.key)
+    this.on.channel.then( =>
+      @channel.assertQueue(@key)
       # sendToQueue should return a response from Buffer.write
       # http://nodejs.org/api/buffer.html#buffer_buf_write_string_offset_length_encoding
       deferred.resolve(
-        client.channel.sendToQueue(client.key, message)
+        @channel.sendToQueue(@key, message)
       )
       null
     )
