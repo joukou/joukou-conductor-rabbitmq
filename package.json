@@ -1,6 +1,6 @@
 {
   "name": "joukou-conductor-rabbitmq",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "RabbitMQ implementation for joukou-conductor",
   "main": "dist/index.js",
   "scripts": {
@@ -16,13 +16,12 @@
     "url": "https://github.com/joukou/joukou-conductor-rabbitmq/issues"
   },
   "dependencies": {
-    "q": "1.0.1",
-    "lodash": "~2.4.1",
-    "schemajs": "~0.1.11",
-    "node-uuid": "~1.4.1",
     "amqplib": "~0.3.0",
+    "joukou-conductor-fleet": "git://github.com/joukou/joukou-conductor-fleet.git#v0.0.1",
     "joukou-conductor-noflo": "git://github.com/joukou/joukou-conductor-noflo.git#v0.0.2",
-    "joukou-conductor-fleet": "git://github.com/joukou/joukou-conductor-fleet.git#v0.0.1"
+    "node-uuid": "~1.4.1",
+    "q": "1.0.1",
+    "request": "^2.51.0"
   },
   "devDependencies": {
     "chai": "1.9.x",
